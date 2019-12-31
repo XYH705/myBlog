@@ -1,2 +1,0 @@
-# myBlog
-blog for study
