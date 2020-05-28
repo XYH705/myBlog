@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  
+</body>
+<script>
+  // =====new====
+  // 1、创建新对象
+  // 2、对象原型指向构造函数的prototype属性；
+  // 3、执行构造函数，将构造函数的this指向该对象，未属性添加新的属性和方法
+  // 4、返回新的对象
+  function myNew(func) {
+    var res = {};
+    if (func.prototype !== null) {
+        res.__proto__ = func.prototype;
+    }
+    var ret = func.apply(res, Array.prototype.slice.call(arguments, 1));
+    if ((typeof ret === "object" || typeof ret === "function") && ret !== null) {
+        return ret;
+    }
+    return res;
+}
+//=====call模拟实现=======
+Function.prototype.myCall=function(context=window){
+  context.fn=this;
+  console.log(context);
+  console.log(this)
+  let args=[...arguments].slice(1);
+  let res =context.fn(...args);
+  delete context.fn;
+  return res
+}
+
+//=====apply模拟实现========
+Function.prototype.myApply=function(context=window){
+  context.fn=this;
+  if(arguments[1]){
+    context.fn(...arguments[1])
+  }else{
+    context.fn()
+  }
+  delete context.fn;
+  return res
+}
+//=====bind的模拟实现====
+Function.prototype.mybind = function(thisArg) {
+    if (typeof this !== 'function') {
+      throw TypeError("Bind must be called on a function");
+    }
+    // 拿到参数，为了传给调用者
+    const args = Array.prototype.slice.call(arguments, 1),
+      // 保存 this
+      self = this,
+      // 构建一个干净的函数，用于保存原函数的原型
+      nop = function() {},
+      // 绑定的函数
+      bound = function() {
+        // this instanceof nop, 判断是否使用 new 来调用 bound
+        // 如果是 new 来调用的话，this的指向就是其实例，
+        // 如果不是 new 调用的话，就改变 this 指向到指定的对象 o
+        return self.apply(
+          this instanceof nop ? this : thisArg,
+          args.concat(Array.prototype.slice.call(arguments))
+        );
+      };
+
+    // 箭头函数没有 prototype，箭头函数this永远指向它所在的作用域
+    if (this.prototype) {
+      nop.prototype = this.prototype;
+    }
+    // 修改绑定函数的原型指向
+    bound.prototype = new nop();
+
+    return bound;
+  }
+
+//=====继承实现=====
+function extend(subClass,superClass){
+	var prototype = object(superClass.prototype);//创建对象
+	prototype.constructor = subClass;//增强对象
+  subClass.prototype = prototype;//指定对象
+  return subClass
+}
+
+// =====函数柯里化=======
+function curry(fn,args){
+  let len=fn.length;
+  let initArgs=args||[];
+  return function(){
+    let newArgs=initArgs.concat(Array.prototype.slice.call(arguments));
+    if(newArgs.length<len){
+      return curry.call(this,fn,newArgs)
+    }else{
+      return fn.apply(this,newArgs)
+    }
+  }
+}
+// const curry = (fn, arr = []) => (...args) => (
+//   arg => arg.length === fn.length
+//     ? fn(...arg)
+//     : curry(fn, arg)
+// )([...arr, ...args])
+// 参数复用，延迟执行
+// =====函数反柯里化=======
+
+// =====函数节流=======
+// https://juejin.im/post/5b8de829f265da43623c4261
+function throttle(fn,delay){
+  let preTime=new Date();
+  return function(){
+    let nowDate=new Date();
+    if(nowDate-preTime>delay){
+      fn.apply(this,arguments)
+      preTime=nowDate
+    }
+  }
+}
+
+// =====函数防抖=======
+// 智能联想，onScroll等事件
+function debounce(fn,wait){
+  let timmer;
+  return function(){
+    let context = this;
+    let args = arguments;
+    if(timmer){
+      clearTimeout(timmer)
+    }else{
+      timmer=setTimeout(()=>{
+        fn.call(context,...args)
+      },wait)
+    }
+  }  
+}
+// =====数组的reduce====
+Array.prototype.myReduce=function(cb,initVal){
+  let self=this;
+  let startkey=0
+  if(arguments.length===1){
+     startkey=1;
+    initVal=self[0];
+  }
+  // let startkey=initVal?0:1;
+  // let myInitVal=initVal?initVal:self[0];
+  for(let k=startkey;k<self.length;k++){
+    initVal=cb(initVal,self[k],k,self)
+  }
+  return initVal
+}
+// =====数组的map====
+Array.prototype.myMap=function(cb,thisValue){
+  let self=this;
+  let arr=[];
+  for(let i=0;i<self.length;i++){
+    arr.push(cb.call(thisValue,self[k],index))
+  }
+  return arr;
+}
+// =====数组的filter====
+Array.prototype.myMap=function(cb,thisValue){
+  let self=this;
+  let arr=[];
+  for(let i=0;i<self.length;i++){
+    if(cb.call(thisValue,self[k],index)){
+      arr.push(cb.call(thisValue,self[k],index))
+    }
+  }
+  return arr;
+}
+// =====数组的instanceof====
+function myInstanceof(left,right){
+  let proto=left.__proto__;
+  let prototype=right.prototype;
+  while(true){
+    if(proto===null) return false;
+    if(proto===prototype)return true 
+    proto=proto.__proto__
+  }
+}
+// =====深拷贝====
+function deepClone(obj){
+  let cloneObj
+  if(typeof obj ==="object"){
+    cloneObj= obj.constructor == Array ? [] : {};
+    for(let k in obj){
+      cloneObj[k]=typeof obj[k] ==="object"?deepClone[obj[k]]:obj[k]
+    }
+  }else{
+    cloneObj=obj
+  }
+  return cloneObj
+}
+let DFSdeepClone = (obj, visitedArr = []) => {
+  let _obj = {}
+  if (isTypeOf(obj, 'array') || isTypeOf(obj, 'object')) {
+    let index = visitedArr.indexOf(obj)
+    _obj = isTypeOf(obj, 'array') ? [] : {}
+    if (~index) { // 判断环状数据
+      _obj = visitedArr[index]
+    } else {
+      visitedArr.push(obj)
+      for (let item in obj) {
+        _obj[item] = DFSdeepClone(obj[item], visitedArr)
+      }
+    }
+  } else if (isTypeOf(obj, 'function')) {
+    _obj = eval('(' + obj.toString() + ')');
+  } else {
+    _obj = obj
+  }
+  return _obj
+}
+// =====promise====
+// =====stringify====
+//======parse======
+//======Object.create====
+//======Array.isArray======
+//======getOwnPropertyNames======
+//======class的实现======
+//======数据类型以及判断=====
+</script>
+</html>

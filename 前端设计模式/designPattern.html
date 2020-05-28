@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  
+</body>
+<script>
+// ======装饰者模式=====
+// 装饰器模式: 动态地给函数赋能。
+// AOP装饰函数
+//该写法会污染Function的原型
+Function.prototype.before = function(cb){
+    // 箭头函数中没有arguments
+    // ... 剩余运算符 把所有的内容 都变成一个数组
+    return (...args) => { // 箭头函数中没有this指向  this 会像上一层查找
+        cb();
+        this(...args); // 将数组全部展开传入
+    }
+}
+// 不污染全局Function的写法
+const handelCore = function(fn, before,after) {
+  const self = this
+    return function() {
+        before.apply(self, arguments)
+        fn.apply(self, arguments)
+        after.apply(self, arguments)
+    }
+}
+
+// ======单例模式=====
+// 保证一个类只有一个实例，并提供一个访问它的全局访问点（调用一个类，任何时候返回的都是同一个实例），特点只有一个实例，有一个全局的访问点
+// class  Singleton {
+//   constructor(name){
+//     this.name=name;
+//     this.instance=null;
+//   }
+//   getName(){
+//     console.log(this.name)
+//   }
+//   static getInstance(args){
+//     if(!this.instance){
+//       this.instance=new Singleton(args)
+//     }
+//     return this.instance
+//   }
+// }
+// =====闭包包装实例======
+// let  SingletonP=(function(){
+//   let instance
+//   return class  Singleton{
+//     constructor(name){
+//       if(instance){
+//         return instance
+//       }else{
+//         this.init(name);
+//         instance=this;
+//         return this
+//       }
+//     }
+//     init(name){
+//       this.name=name;
+//     }
+//   }
+// })() 
+
+//======惰性包装实例=====
+//通用单例模式
+// const getSingle = function (fn) {
+//     let result
+//     return function() {
+//         return result || (result = fn.apply(this, arguments))
+//     }
+// }
+
+// ======发布订阅模式=====
+// class Event{
+//   constructor(){
+//     this.listeners={}
+//   }
+//   on(type,fn){
+//     if(!this.listeners[type]){
+//       this.listeners[type]=[]
+//     }
+//     this.listeners[type].push(fn)
+//   }
+//   emit(type,data){
+//     let listeners=this.listeners[type] ||[]
+//     listeners.foreach(l=>l(data))
+//   }
+//   unSubscribe(type){
+//     delete this.listeners[type]
+//   }
+// }
+// ======观察者阅模式=====
+// class Subject{
+//   constructor(initState){
+//     this.state=initState;
+//     this.observerArr=[]
+//   }
+//   addObserver(observer){
+//     this.observerArr.push(observer)
+//   }
+//   removeObserver(observer){
+//     let observers=this.observerArr
+//     for(let i=0;i<observers.length;i++){
+//       if(observers[i]==observer){
+//         observers.splice(i,1)
+//       }
+//     }
+//   }
+//   setState(newState){
+//     this.state=newState;
+//     this.notify()
+//   }
+//   notify(){
+//     this.observerArr.forEach(o=>o.update(this))
+//   }
+// }
+// class Observer{
+//   constructor(initState){
+//     this.state=initState
+//   }
+//   update(){
+//     console.log("update")
+//   }
+// }
+// 1、在观察者模式中，观察者是知道Subject的，Subject一直保持对观察者进行记录。然而，在发布订阅模式中，发布者和订阅者不知道对方的存在。它们只有通过消息代理进行通信。
+// 2、在发布订阅模式中，组件是松散耦合的，正好和观察者模式相反。
+// 3.观察者模式大多数时候是同步的，比如当事件触发，Subject就会去调用观察者的方法。而发布-订阅模式大多数时候是异步的（使用消息队列）。
+// 4.观察者 模式需要在单个应用程序地址空间中实现，而发布-订阅更像交叉应用模式。
+// let s = new Subject('小宝宝');  // 创建被观察者
+// let o1 = new Observer('我'); // 创建两个观察者
+// let o2 = new Observer('媳妇');
+// s.addObserve(o1);
+// s.addObserve(o2);
+// s.setState('不开心')
+// ======工厂模式=======
+
+
+
+
+</script>
+</html>
