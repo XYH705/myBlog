@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>share-document</title>
+  <script src="https://cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>
+  <!-- qrcode.js 生成二维码插件 -->
+  <script src="./js/qrcode.js"></script>
+  <!-- 定义分享到qq、qq空间、微博的函数 -->
+  <script src="./js/share.js"></script>
+
+  <style>
+    .wrap {
+      width: 100px;
+      height: 300px;
+      margin: 0 auto;
+      border-radius: 4px 0 0 4px;
+    }
+
+    .btn {
+      cursor: pointer;
+      border: 1px solid red;
+      width: 30px;
+      height: 30px;
+      border-radius: 2px;
+      margin-bottom: 2px;
+    }
+
+    #qrcode {
+      width: 100px;
+      height: 100px;
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="btn" id='qq'>
+      <img src="./img/qq.png" alt="">
+    </div>
+    <div class="btn" id='qzone'>
+      <img src="./img/qzone.png" alt="">
+    </div>
+    <div class="btn" id='wechat'>
+      <img src="./img/wechat.png" alt="">
+    </div>
+    <div class="btn" id='weibo'>
+      <img src="./img/weibo.png" alt="">
+    </div>
+    <div id="qrcode"></div>
+  </div>
+</body>
+<script>
+  var url = 'https://www.baidu.com/'
+  var title = '分享的标题'
+  var timmer
+  // 生成QRCode的对象
+  var qrcode = new QRCode(document.getElementById("qrcode"), {
+    width: 100,
+    height: 100,
+    text: url, // 二维码内容
+    render: 'canvas', // 设置渲染方式（有两种方式 table和canvas，默认是canvas）
+    colorDark: '#000000',
+    colorLight: '#ffffff'
+  });
+  // 传入url生成二维码
+  function makeCode(params) {
+    qrcode.makeCode(url)
+  }
+  makeCode()
+  // 注意加 logo 的二维码
+  // qrcodejs 并没有提供这个 API，issues 里有人给了 demo，其实就是在原有元素上覆盖一个 logo 就可以了，
+  // 虽然遮盖了原有二维码的一部分，但是实测并不影响扫描。不过我没有进行大规模测试，可能会有一定的错误率
+
+
+  // 点击分享到qq
+  $('#qq').on('click', function (params) {
+    shareQQ(url, title)
+  })
+  // 点击分享到qq空间
+  $('#qzone').on('click', function (params) {
+    shareQZon(url, title)
+  })
+  //分享到微博
+  $('#weibo').on('click', function (params) {
+    shareSinaWeiBo(url, title)
+  })
+
+  //鼠标移入到微信icon，二维码显示和隐藏
+  $('#wechat').on('mouseover', function (params) {
+    clearTimeout(timmer)
+    $('#qrcode').css('display', 'block')
+  })
+  $('#wechat').on('mouseout', function (params) {
+    timmer = setTimeout(() => {
+      $('#qrcode').css('display', 'none')
+    }, 2000);
+  })
+  $('#qrcode').on('mouseover', function (params) {
+    clearTimeout(timmer)
+    $('#qrcode').css('display', 'block')
+  })
+  $('#qrcode').on('mouseout', function (params) {
+    timmer = setTimeout(() => {
+      $('#qrcode').css('display', 'none')
+    }, 2000);
+  })
+</script>
+
+</html>
